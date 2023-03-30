@@ -1,3 +1,5 @@
+@import 'react-slideshow-image/dist/styles.css';
+
 
 @keyframes fadeIn {
   0% {opacity: 0;}
@@ -21,11 +23,11 @@
 
 
 .circular-btn {
-  border-radius: 30px;
+  border-radius: 30px !important;
 }
 
 .circular-btn:hover {
-  background-color: #274494;
+  background-color: #274494 !important;
 }
 
 
