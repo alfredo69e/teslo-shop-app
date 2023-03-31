@@ -1,9 +1,24 @@
-import React from 'react';
-import { AppBar, Badge, Box, Button, IconButton, Link, Toolbar, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { AppBar, Badge, Box, Button, IconButton, Link, Toolbar, Typography, Input, InputAdornment } from '@mui/material';
 import NextLink from 'next/link';
-import { SearchOutlined, ShoppingBagOutlined, MenuOutlined } from '@mui/icons-material';
+import { ClearOutlined, SearchOutlined, ShoppingBagOutlined } from '@mui/icons-material';
+import { useRouter } from 'next/router';
+import { UIContext } from '../../../context';
 
 export const NavBar = () => {
+
+    const { push, asPath } = useRouter();
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const [isSerachVisibled, setIsSerachVisibled] = useState(false);
+
+    const { toggleSideMenu } = useContext( UIContext );
+
+    const onSearchTerm = () => {
+        if( searchTerm.trim().length === 0 ) return;
+        push( `/search/${searchTerm}` );
+    }
+
   return (
     <AppBar>
         <Toolbar>
@@ -16,30 +31,72 @@ export const NavBar = () => {
 
             <Box flex={ 1 }  />
 
-            <Box sx={{ display: {
-                xs: 'none',
-                sm: 'block'
-            } }}>
-                <NextLink href={'/category/mens'} legacyBehavior>
+            <Box 
+                className='fadeIn'
+                sx={{
+                display: isSerachVisibled 
+                ? 'none' : {
+                    xs: 'none',
+                    sm: 'block'
+                } }}
+            >
+                <NextLink href={'/category/men'} legacyBehavior>
                     <Link>
-                        <Button > Mens </Button>
+                        <Button color={ asPath === '/category/men' ? 'primary' : 'info' } > Mens </Button>
                     </Link>
                 </NextLink>
-                <NextLink href={'/category/womens'} legacyBehavior>
+                <NextLink href={'/category/women'} legacyBehavior>
                     <Link>
-                        <Button > Womens </Button>
+                        <Button color={ asPath === '/category/women' ? 'primary' : 'info' }> Womens </Button>
                     </Link>
                 </NextLink>
-                <NextLink href={'/category/kids'} legacyBehavior>
+                <NextLink href={'/category/kid'} legacyBehavior>
                     <Link>
-                        <Button > Kids </Button>
+                        <Button color={ asPath === '/category/kid' ? 'primary' : 'info' }> Kids </Button>
                     </Link>
                 </NextLink>
             </Box>
 
             <Box flex={ 1 }  />
 
-            <IconButton>
+            
+            {
+               !isSerachVisibled 
+               ? <IconButton 
+                        sx={{ 
+                            display: {
+                            xs: 'none', sm: 'block'
+                        } }}
+                    onClick={ () => setIsSerachVisibled( true ) }
+                    >
+                        <SearchOutlined />
+                    </IconButton>
+               :  <Input
+                    autoFocus
+                    className='animate__animated animate__fadeIn'
+                    type='text'
+                    placeholder="Buscar..."
+                    value={searchTerm}
+                    onChange={ ({ target }) => setSearchTerm( target.value ) }
+                    onKeyPress={ ({ key }) => ( key === 'Enter') ? onSearchTerm() : null }
+                    endAdornment={
+                        <InputAdornment position="end">
+                            <IconButton
+                            onClick={ () => setIsSerachVisibled( false ) }
+                            >
+                                <ClearOutlined />
+                            </IconButton>
+                        </InputAdornment>
+                    }
+                />
+            }
+        
+            {/* pantallas mobiles */}
+            <IconButton sx={{ display: {
+                xs: 'block', sm: 'none'
+            } }}
+                onClick={ () => toggleSideMenu( true ) }
+            >
                 <SearchOutlined />
             </IconButton>
 
@@ -53,9 +110,11 @@ export const NavBar = () => {
                     </Link>
             </NextLink>
 
-            <IconButton>
+            <Button 
+            onClick={ () => toggleSideMenu( true ) }
+            >
                 <Typography> Menu </Typography>
-            </IconButton>
+            </Button>
         </Toolbar>
     </AppBar>
   )

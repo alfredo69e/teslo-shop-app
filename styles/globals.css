@@ -12,8 +12,8 @@
 }
 
 .fadeIn {
-  -webkit-animation-duration: 0.5s;
-  animation-duration: 0.5s;
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
   -webkit-animation-fill-mode: both;
   animation-fill-mode: both;
 
@@ -34,4 +34,31 @@
 .summary-card {
   border: 1px solid rgba(0, 0, 0, 0.1);
   box-shadow: 0px 5px 5px rgba(0, 0, 0, 0.2);
+}
+
+
+
+@keyframes fadeInRight {
+  0%  {
+    opacity: 0;
+    transform: translateX(300px);
+  }
+  100% { opacity: 1; }
+} 
+
+@-webkit-keyframes fadeInRight {
+  0%  {
+    opacity: 0;
+    transform: translateX(300px);
+  }
+  100% { 
+    opacity: 1;
+    transform: translateX(0px)
+  }
+} 
+
+.inputAnimtion {
+
+  -webkit-animation: fadeInRight 10s ease-in-out;
+  animation: fadeInRight 10s ease-in-out;
 }
