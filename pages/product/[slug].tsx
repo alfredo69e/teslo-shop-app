@@ -1,11 +1,12 @@
+import React, { FC, useContext, useState } from 'react';
+import { GetStaticPaths, GetStaticProps } from 'next';
 
 import { dbProducts } from '@/db';
 import { Box, Button, Chip, Grid, Typography } from '@mui/material';
-import { GetServerSideProps, GetStaticProps } from 'next';
-import React, { FC } from 'react';
-import { ItemCounter, Loading, ProductSlideshow, ShopLayout, SizeSelector } from '../../components';
-import { IProduct } from '../../interfaces';
-import { GetStaticPaths } from 'next'
+import { ItemCounter, ProductSlideshow, ShopLayout, SizeSelector } from '../../components';
+import { ICartProduct, IProduct, IValidSizes } from '../../interfaces';
+import { CartContext } from './../../context';
+import { useRouter } from 'next/router';
 
 interface Props {
   product: IProduct
@@ -13,9 +14,44 @@ interface Props {
 
  const ProductPage: FC< Props > = ({ product }) => {
 
-  // const { query } = useRouter();
+  const { push } = useRouter();
 
-  // const { data: product, isLoading } = useProducts<IProduct>(`/products/${ query.slug }`);
+ const { onAddProductCart } = useContext( CartContext );
+
+  const [tempCartProduct, setTempCartProduct] = useState<ICartProduct>({
+    _id: product._id,
+    images: product.images[0],
+    price: product.price,
+    size: undefined,
+    slug: product.slug,
+    title: product.title,
+    gender: product.gender,
+    quantity: 1,
+  });
+
+  const onSelectSize = ( size: IValidSizes ) => {
+    setTempCartProduct(( currentProduct ) => ({
+      ...currentProduct,
+      size
+    }));
+  }
+
+  const onUpdateQuatity = ( value: number ) => {
+
+    setTempCartProduct(( currentProduct ) => ({
+      ...currentProduct,
+      quantity: value
+    }))
+
+  }
+
+
+    const onAddProduct = () => {
+      if( !tempCartProduct.size ) return;
+
+      onAddProductCart( tempCartProduct );
+      push('/cart');
+    }
 
   return (
     <ShopLayout title={ product.title } pageDescription={ product.description }>
@@ -31,18 +67,30 @@ interface Props {
             <Typography variant='h2' component={'h2'} > { `$${ product.price }` } </Typography>
             {/* Cantidad */}
             <Box sx={{ my: 2 }} >
-              <Typography variant='subtitle2' >  Cantidad </Typography>
-              <ItemCounter />
-              <SizeSelector selectSize={ product.sizes[0] } sizes={ product.sizes } />
+              <Typography variant='subtitle2' > Cantidad </Typography>
+              <ItemCounter onChangeQuantity={ onUpdateQuatity } quantity={ tempCartProduct.quantity } valueMAx={ 10 } />
+              <SizeSelector selectSize={ tempCartProduct.size } sizes={ product.sizes } onSelectSize={ onSelectSize } />
             </Box>
 
             {/* Add To Cart */}
 
-            <Button color={'secondary'} className={'circular-btn'}>
-                  Add To Cart
-            </Button>
+            
 
-            {/* <Chip label={'No Hay Disponible'} color={'error'} variant='outlined' /> */}
+            {
+                product.inStock >  0 
+                ? (
+                  <Button color={'secondary'} className={'circular-btn'} onClick={ onAddProduct }>
+                        {
+                         ( tempCartProduct.size ) 
+                         ? 'Add To Cart'
+                         : 'Select a size'
+                        }
+                  </Button>
+                )
+                : (
+                  <Chip label={'No available'} color={'error'} variant='outlined' />
+                )
+            }
 
             {/* Description */}
             <Box sx={{ mt: 3 }} >

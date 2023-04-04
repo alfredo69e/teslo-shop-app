@@ -3,9 +3,11 @@ import { AppBar, Badge, Box, Button, IconButton, Link, Toolbar, Typography, Inpu
 import NextLink from 'next/link';
 import { ClearOutlined, SearchOutlined, ShoppingBagOutlined } from '@mui/icons-material';
 import { useRouter } from 'next/router';
-import { UIContext } from '../../../context';
+import { CartContext, UIContext } from '../../../context';
 
 export const NavBar = () => {
+
+   const { numberOfItem } = useContext( CartContext )
 
     const { push, asPath } = useRouter();
 
@@ -103,7 +105,7 @@ export const NavBar = () => {
             <NextLink href={'/cart'} legacyBehavior>
                     <Link>
                         <IconButton>
-                            <Badge badgeContent={ 2 } color='secondary'>
+                            <Badge badgeContent={ numberOfItem > 9 ? '+9' : numberOfItem } color='secondary'>
                                 <ShoppingBagOutlined />
                             </Badge>
                         </IconButton>
