@@ -9,7 +9,7 @@ export interface IProduct {
     tags: string[];
     title: string;
     type: IValidTypes;
-    gender: 'men'|'women'|'kid'|'unisex',
+    gender: 'men'|'women'|'kid'|'unisex';
     createdAt: string;
     updatedAt: string;
 }

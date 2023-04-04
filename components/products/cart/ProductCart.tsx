@@ -1,4 +1,4 @@
-import { Box, Card, CardActionArea, CardMedia, CircularProgress, Grid, Skeleton, Typography } from '@mui/material';
+import { Box, Card, CardActionArea, CardMedia, Chip, CircularProgress, Grid, Skeleton, Typography } from '@mui/material';
 import React, { FC, useMemo, useState } from 'react';
 import { IProduct } from './../../../interfaces';
 import NextLink from 'next/link';
@@ -15,7 +15,9 @@ export const ProductCart: FC< Props > = ({ product }) => {
     const [isHover, setIsHover] = useState( false );
     const [isImageLoader, setIsImageLoader] = useState( false );
 
-    const productImage = useMemo(() => ( isHover ) ? `/products/${images[1]}` : `/products/${images[0]}`, [ isHover, images ])
+    const productImage = useMemo(() => ( isHover ) ? `/products/${images[1]}` : `/products/${images[0]}`, [ isHover, images ]);
+
+ 
 
   return (
     <Grid item xs={ 6 } sm={ 4 } key={ slug } 
@@ -25,7 +27,17 @@ export const ProductCart: FC< Props > = ({ product }) => {
       >
         <NextLink href={`/product/${slug}`} passHref prefetch={ false }>
           <Card>
+            
             <CardActionArea>
+              {
+                product.inStock <= 0 && (
+                      <Chip color='primary'
+                      label='No available'
+                      sx={{ position: 'absolute', zIndex: 99, top: 10, left: 10 }}
+                    />
+                )
+              }
+                
                 <CardMedia 
                   className='animate__animated animate__zoomIn animate__fast'
                   component={ 'img' }

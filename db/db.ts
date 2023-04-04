@@ -6,7 +6,7 @@ const mongoConnection = {
 
 export const connect = async () => {
 
-    console.log('process.env.MONGO_DB ', process.env.MONGO_DB);
+    // console.log('process.env.MONGO_DB ', process.env.MONGO_DB);
 
     if( mongoConnection.isConnected === 1 ) {
         console.log(' ya estabamos conectados');
@@ -32,12 +32,12 @@ export const connect = async () => {
     
     
 
-    console.log(' Connectado a mongo ', process.env.MONGO_DB ?? '');
+    // console.log(' Connectado a mongo ', process.env.MONGO_DB ?? '');
 }
 
 export const disconnect = async () => {
     if ( mongoConnection.isConnected === 0 ) return;
     mongoConnection.isConnected = 0;
     mongoose.disconnect();
-    console.log(' desconectado a mongo ');
+    // console.log(' desconectado a mongo ');
 }
