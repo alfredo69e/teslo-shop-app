@@ -34,7 +34,10 @@ const registerUser = async ( req: NextApiRequest, res: NextApiResponse<Data>) =>
             return res.status(400).json({message: 'The Name have 2 letters'});
         } 
 
-        if( validations.isValidEmail( email ) ) {
+        // console.log( email );
+        
+
+        if( !validations.isValidEmail( email ) ) {
             return res.status(400).json({message: 'Is Not email Valide'});
         } 
 
