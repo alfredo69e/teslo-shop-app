@@ -6,8 +6,10 @@ import { useProducts } from './../hooks';
 
 
 
-
 export default function HomePage() {
+
+  
+  
 
   const { data, isLoading } = useProducts('/products');
 

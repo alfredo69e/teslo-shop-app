@@ -1,15 +1,19 @@
-import { FC, ReactNode, useEffect, useReducer, useState } from 'react';
+import { FC, ReactNode, useEffect, useReducer } from 'react';
 import { CartContext, cartReducer } from './';
-import { ICartProduct } from './../../interfaces';
+import { ICartProduct, IOrder, ShippingAddress } from './../../interfaces';
 import Cookie from 'js-cookie';
-import { double } from 'webidl-conversions';
+import Cookies from 'js-cookie';
+import { tesloApi } from '../../api';
+import axios from 'axios';
 
 export interface CartState {
+    isLoaded: boolean;
     cart: ICartProduct[];
     numberOfItem: number;
     subTotal: number;
     tax: number;
     total: number;
+    shippingAddress?: ShippingAddress;
 }
 
 interface props {
@@ -17,11 +21,22 @@ interface props {
 }
 
 const CART_INITIAL_STATE: CartState = {
+    isLoaded: false,
     cart: [],
     numberOfItem: 0,
     subTotal: 0,
     tax: 0,
     total: 0,
+    shippingAddress: {
+        firstName   : '',
+        lastName    : '',
+        address     : '',
+        address2    : undefined,
+        zip         : '',
+        city        : '',
+        country     : '',
+        phone       : '',
+    }
 }
 
 
@@ -44,6 +59,26 @@ export const CartProvider: FC<props> = ({ children }) => {
         
        }
      }, []);
+
+     useEffect(() => {
+
+        if( Cookies.get('firstName') ) {
+
+            dispatch({ type: '[Cart] - Load Address From Cookies', payload: {
+                firstName: Cookies.get('firstName') || '',
+                lastName: Cookies.get('lastName') || '',
+                address: Cookies.get('address') || '',
+                address2: Cookies.get('address2') || '',
+                zip: Cookies.get('zip') || '',
+                city: Cookies.get('city') || '',
+                country: Cookies.get('country') || '',
+                phone: Cookies.get('phone') || '',
+            } });
+            
+        };
+
+       
+    }, []);
 
 
     useEffect(() => {
@@ -100,6 +135,70 @@ export const CartProvider: FC<props> = ({ children }) => {
         dispatch({ type: '[Cart] - Remove Product Cart', payload: product });
     }
 
+    const updateAddress = ( address: ShippingAddress ) => {
+        Cookies.set('firstName', address.firstName);
+        Cookies.set('lastName', address.lastName);
+        Cookies.set('address', address.address);
+        Cookies.set('address2', address.address2 || '');
+        Cookies.set('zip', address.zip);
+        Cookies.set('city', address.city);
+        Cookies.set('country', address.country);
+        Cookies.set('phone', address.phone);
+        dispatch({ type: '[Cart] - Update Shipping Address', payload: address });
+    }
+
+    const onCreateOrder = async(): Promise<{ hasErr: boolean; message: string; }> => {
+
+        if( !state.shippingAddress ) {
+            throw new Error('No Hay Order');
+        }
+
+        try {
+
+            const createOrder: IOrder = {
+                orderItems           : state.cart.map( ( p ) => ({
+                    ...p,
+                    size        : p.size!,
+                    image       : p.image,
+                } )),
+                shippingAddress      : state.shippingAddress,
+                numberOfItem         : state.numberOfItem,
+                subTotal             : state.subTotal,
+                tax                  : state.tax,
+                total                : state.total,
+                isPay                : false,
+            };
+
+            const { data } = await tesloApi.post<IOrder>('/orders', createOrder );
+
+         dispatch({ type: '[Cart] - Order complete' })
+
+        return {
+            hasErr: false,
+            message: data._id!
+        }
+            
+        } catch ( err ) {
+
+            console.log('err ', err);
+
+            if( axios.isAxiosError(err) ) {
+                return {
+                    hasErr: true,
+                    message: err.response?.data.message
+                }
+            }
+
+            return {
+                hasErr: true,
+                message: 'error no controlado'
+            }
+            
+            
+        }
+
+    }
+
 return (
     <CartContext.Provider value={{
         ...state,
@@ -108,6 +207,8 @@ return (
         onAddProductCart,
         onRemoveProductCart,
         updateCartQuantity,
+        updateAddress,
+        onCreateOrder
     }}>
         { children }
     </CartContext.Provider>
